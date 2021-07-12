@@ -47,8 +47,6 @@ public class MyClassTransformer implements ClassFileTransformer {
                 MethodInfo methodInfo = m.getMethodInfo();
                 AnnotationsAttribute attr = (AnnotationsAttribute)
                         methodInfo.getAttribute(AnnotationsAttribute.visibleTag);
-                System.out.println(attr.getAnnotations().length);
-                System.out.println(Arrays.toString(attr.getAnnotations()));
 
                 ClassFile classFile = cc.getClassFile();
                 ConstPool constPool = classFile.getConstPool();
