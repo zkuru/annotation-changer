@@ -30,10 +30,8 @@ public class JavaAgent {
             System.out.println("Can't get with Class.forName");
             // otherwise iterate all loaded classes and find what we want
             for(Class<?> clazz: instrumentation.getAllLoadedClasses()) {
-                System.out.println("Loaded class " + clazz.getName());
                 if(clazz.getName().equals(className)) {
                     targetCls = clazz;
-                    System.out.println("Found class " + clazz.getName());
                     targetClassLoader = targetCls.getClassLoader();
                     transform(targetCls, targetClassLoader, instrumentation, methodName, invocationCount);
                     return;

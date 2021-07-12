@@ -28,8 +28,6 @@ public class MyClassTransformer implements ClassFileTransformer {
         this.invocationCount = invocationCount;
     }
 
-    public MyClassTransformer() {}
-
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         byte[] byteCode = classfileBuffer;
@@ -37,17 +35,12 @@ public class MyClassTransformer implements ClassFileTransformer {
         String finalTargetClassName = targetClassName
                 .replaceAll("\\.", "/");
         if (className.equals(finalTargetClassName) && loader.equals(targetClassLoader)) {
-            System.out.println("Agent in MyClassTransformer.");
-            System.out.println("A1");
             ClassPool cp = null;
             try {
                 cp = ClassPool.getDefault();
-                System.out.println("A2");
             } catch (Exception e) {
                 e.printStackTrace();
             }
-//            cp.appendClassPath(new LoaderClassPath(loader));
-//            System.out.println("A2");
             try {
                 CtClass cc = cp.get(targetClassName);
                 CtMethod m = cc.getDeclaredMethod(methodName);
@@ -56,14 +49,6 @@ public class MyClassTransformer implements ClassFileTransformer {
                         methodInfo.getAttribute(AnnotationsAttribute.visibleTag);
                 System.out.println(attr.getAnnotations().length);
                 System.out.println(Arrays.toString(attr.getAnnotations()));
-
-//                Annotation an = attr.getAnnotation("org.testng.annotations.Test");
-//                IntegerMemberValue memberValue = (IntegerMemberValue) an.getMemberValue("invocationCount");
-//                memberValue.setValue(100);
-//
-//                System.out.println(((IntegerMemberValue) attr.getAnnotation("org.testng.annotations.Test")
-//                        .getMemberValue("invocationCount")).getValue());
-
 
                 ClassFile classFile = cc.getClassFile();
                 ConstPool constPool = classFile.getConstPool();
