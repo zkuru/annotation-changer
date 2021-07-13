@@ -15,10 +15,10 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 
 public class MyClassTransformer implements ClassFileTransformer {
-    private Class<?> targetClass;
-    private ClassLoader targetClassLoader;
-    private String methodName;
-    private Integer invocationCount;
+    private final Class<?> targetClass;
+    private final ClassLoader targetClassLoader;
+    private final String methodName;
+    private final Integer invocationCount;
 
     public MyClassTransformer(Class<?> targetClass, ClassLoader targetClassLoader, String methodName,
                               Integer invocationCount) {

@@ -7,27 +7,22 @@ public class JavaAgent {
         System.out.println("Args passed: " + args);
         String[] argsArray = args.split(",");
         String className = argsArray[0];
-        System.out.println("ClassName: " + className);
         String methodName = null;
         if (argsArray.length > 1) {
             methodName = argsArray[1];
-            System.out.println("MethodName: " + methodName);
         }
-        transform(className, methodName, inst, new Integer(argsArray[2]));//binaryTree.TreeNodeTest
+        transform(className, methodName, inst, new Integer(argsArray[2]));
     }
 
     public static void transform(String className, String methodName, Instrumentation instrumentation, Integer invocationCount) {
         Class<?> targetCls;
         ClassLoader targetClassLoader;
-        // see if we can get the class using forName
         try {
             targetCls = Class.forName(className);
             targetClassLoader = targetCls.getClassLoader();
-            System.out.println("Found requested class with Class.forName.");
             transform(targetCls, targetClassLoader, instrumentation, methodName, invocationCount);
             return;
         } catch (Exception ex) {
-            System.out.println("Can't get with Class.forName");
             // otherwise iterate all loaded classes and find what we want
             for(Class<?> clazz: instrumentation.getAllLoadedClasses()) {
                 if(clazz.getName().equals(className)) {
