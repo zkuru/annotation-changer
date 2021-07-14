@@ -4,14 +4,8 @@ import java.lang.instrument.Instrumentation;
 
 public class JavaAgent {
     public static void premain(String args, Instrumentation inst) {
-        System.out.println("Args passed: " + args);
-        String[] argsArray = args.split(",");
-        String className = argsArray[0];
-        String methodName = null;
-        if (argsArray.length > 1) {
-            methodName = argsArray[1];
-        }
-        transform(className, methodName, inst, new Integer(argsArray[2]));
+        ParsedArgs parsedArgs = new ParsedArgs(args);
+        transform(parsedArgs.getTargetClass(), parsedArgs.getMethod(), inst, parsedArgs.getInvocationCount());
     }
 
     public static void transform(String className, String methodName, Instrumentation instrumentation, Integer invocationCount) {
