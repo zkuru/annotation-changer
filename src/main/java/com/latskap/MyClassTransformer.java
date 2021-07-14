@@ -16,25 +16,21 @@ import java.util.Arrays;
 
 public class MyClassTransformer implements ClassFileTransformer {
     private final Class<?> targetClass;
-    private final ClassLoader targetClassLoader;
-    private final String methodName;
-    private final Integer invocationCount;
+    private final ParsedArgs parsedArgs;
 
-    public MyClassTransformer(Class<?> targetClass, ClassLoader targetClassLoader, String methodName,
-                              Integer invocationCount) {
+    public MyClassTransformer(Class<?> targetClass, ParsedArgs parsedArgs) {
         this.targetClass = targetClass;
-        this.targetClassLoader = targetClassLoader;
-        this.methodName = methodName;
-        this.invocationCount = invocationCount;
+        this.parsedArgs = parsedArgs;
     }
 
+
     @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) {
         byte[] byteCode = classfileBuffer;
         String targetClassName = targetClass.getName();
         String finalTargetClassName = targetClassName
                 .replaceAll("\\.", "/");
-        if (className.equals(finalTargetClassName) && loader.equals(targetClassLoader)) {
+        if (className.equals(finalTargetClassName) && loader.equals(targetClass.getClassLoader())) {
             ClassPool cp = null;
             try {
                 cp = ClassPool.getDefault();
@@ -43,7 +39,7 @@ public class MyClassTransformer implements ClassFileTransformer {
             }
             try {
                 CtClass cc = cp.get(targetClassName);
-                CtMethod m = cc.getDeclaredMethod(methodName);
+                CtMethod m = cc.getDeclaredMethod(parsedArgs.getMethod());
                 MethodInfo methodInfo = m.getMethodInfo();
                 AnnotationsAttribute attr = (AnnotationsAttribute)
                         methodInfo.getAttribute(AnnotationsAttribute.visibleTag);
@@ -51,7 +47,7 @@ public class MyClassTransformer implements ClassFileTransformer {
                 ClassFile classFile = cc.getClassFile();
                 ConstPool constPool = classFile.getConstPool();
                 Annotation a = new Annotation("org.testng.annotations.Test", constPool);
-                a.addMemberValue("invocationCount", new IntegerMemberValue(constPool, invocationCount));
+                a.addMemberValue("invocationCount", new IntegerMemberValue(constPool, parsedArgs.getInvocationCount()));
                 attr.setAnnotation(a);
                 classFile.addAttribute(attr);
                 byteCode = cc.toBytecode();
