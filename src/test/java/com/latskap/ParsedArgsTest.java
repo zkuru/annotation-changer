@@ -37,6 +37,14 @@ public class ParsedArgsTest {
         assertEquals(78, parsedArgs.getInvocationCount().intValue());
     }
 
+    @Test
+    public void parsingArgs_definesWhetherMethodSelected() {
+        assertTrue(new ParsedArgs("class =Foo, method=test_test, count=78").isMethodSelected());
+        assertFalse(new ParsedArgs("class =Foo, method=, count=78").isMethodSelected());
+        assertFalse(new ParsedArgs("class =Foo, method = , count=78").isMethodSelected());
+        assertFalse(new ParsedArgs("class =Foo,count=78").isMethodSelected());
+    }
+
     // todo can be empty params?
 
     // todo to pass package

@@ -27,6 +27,10 @@ class ParsedArgs {
         return parsedArgs.get(METHOD);
     }
 
+    public boolean isMethodSelected() {
+        return parsedArgs.get(METHOD) != null && !parsedArgs.get(METHOD).isEmpty();
+    }
+
     public Integer getInvocationCount() {
         return new Integer(parsedArgs.get(INVOCATION_COUNT));
     }
