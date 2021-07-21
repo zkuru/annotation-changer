@@ -13,21 +13,21 @@ import javassist.bytecode.annotation.IntegerMemberValue;
 import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 
-public class MyClassTransformer implements ClassFileTransformer {
+public class TestAnnotationTransformer implements ClassFileTransformer {
     private static final String TEST_ANNOTATION = "org.testng.annotations.Test";
     private static final String INVOCATION_COUNT = "invocationCount";
 
     private final Class<?> targetClass;
     private final ParsedArgs parsedArgs;
 
-    public MyClassTransformer(Class<?> targetClass, ParsedArgs parsedArgs) {
+    public TestAnnotationTransformer(Class<?> targetClass, ParsedArgs parsedArgs) {
         this.targetClass = targetClass;
         this.parsedArgs = parsedArgs;
     }
 
-
     @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) {
+    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+                            ProtectionDomain protectionDomain, byte[] classfileBuffer) {
         byte[] byteCode = classfileBuffer;
         String targetClassName = targetClass.getName();
         String finalTargetClassName = targetClassName.replaceAll("\\.", "/");

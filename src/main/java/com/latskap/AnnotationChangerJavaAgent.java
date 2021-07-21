@@ -14,7 +14,7 @@ public class AnnotationChangerJavaAgent {
 
     private static void transform(ParsedArgs parsedArgs, Instrumentation instrumentation) throws UnmodifiableClassException {
         Class<?> targetClass = getClassByName(parsedArgs.getTargetClass(), instrumentation);
-        instrumentation.addTransformer(new MyClassTransformer(targetClass, parsedArgs), true);
+        instrumentation.addTransformer(new TestAnnotationTransformer(targetClass, parsedArgs), true);
         instrumentation.retransformClasses(targetClass);
     }
 
