@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
+import java.util.Optional;
 
 public class TestAnnotationTransformer implements ClassFileTransformer {
     private static final String TEST_ANNOTATION = "org.testng.annotations.Test";
@@ -26,31 +27,36 @@ public class TestAnnotationTransformer implements ClassFileTransformer {
     }
 
     @Override
-    public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) {
-        byte[] byteCode = classfileBuffer;
+        if (isTargetClass(classLoader, className)) {
+            Optional<CtClass> ctClassOptional = getCtClass();
+            if (ctClassOptional.isPresent()) {
+                CtClass cc = ctClassOptional.get();
+                ClassFile classFile = cc.getClassFile();
+                if (parsedArgs.isMethodSelected())
+                    changeInvocationCountOfMethod(cc, classFile);
+                else
+                    changeInvocationCountOfAllTestMethods(cc, classFile);
+                return getClassByteCode(cc, classfileBuffer);
+            }
+        }
+        return classfileBuffer;
+    }
+
+    private boolean isTargetClass(ClassLoader loader, String className) {
         String targetClassName = targetClass.getName();
         String finalTargetClassName = targetClassName.replaceAll("\\.", "/");
-        if (className.equals(finalTargetClassName) && loader.equals(targetClass.getClassLoader())) {
-            ClassPool cp = ClassPool.getDefault();
-            CtClass cc;
-            ClassFile classFile;
-            try {
-                cc = cp.get(targetClassName);
-            } catch (NotFoundException e) {
-                return byteCode;
-            }
+        return className.equals(finalTargetClassName) && loader.equals(targetClass.getClassLoader());
+    }
 
-            classFile = cc.getClassFile();
-            if (parsedArgs.isMethodSelected())
-                changeInvocationCountOfMethod(cc, classFile);
-            else
-                changeInvocationCountOfAllTestMethods(cc, classFile);
-
-            byteCode = getClassByteCode(cc, byteCode);
-            cc.detach();
+    private Optional<CtClass> getCtClass() {
+        ClassPool cp = ClassPool.getDefault();
+        try {
+            return Optional.of(cp.get(targetClass.getName()));
+        } catch (NotFoundException e) {
+            return Optional.empty();
         }
-        return byteCode;
     }
 
     private void changeInvocationCountOfMethod(CtClass cc, ClassFile classFile) {
