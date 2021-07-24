@@ -33,9 +33,8 @@ public class TestAnnotationTransformer implements ClassFileTransformer {
     }
 
     private boolean isTargetClass(ClassLoader loader, String className) {
-        String targetClassName = targetClass.getName();
-        String finalTargetClassName = targetClassName.replaceAll("\\.", "/");
-        return className.equals(finalTargetClassName) && loader.equals(targetClass.getClassLoader());
+        return className.equals(targetClass.getName().replaceAll("\\.", "/"))
+                && loader.equals(targetClass.getClassLoader());
     }
 
     private byte[] transformClass() {
