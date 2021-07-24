@@ -29,25 +29,27 @@ public class TestAnnotationTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) {
-        if (isTargetClass(classLoader, className)) {
-            Optional<CtClass> ctClassOptional = getCtClass();
-            if (ctClassOptional.isPresent()) {
-                CtClass cc = ctClassOptional.get();
-                ClassFile classFile = cc.getClassFile();
-                if (parsedArgs.isMethodSelected())
-                    changeInvocationCountOfMethod(cc, classFile);
-                else
-                    changeInvocationCountOfAllTestMethods(cc, classFile);
-                return getClassByteCode(cc, classfileBuffer);
-            }
-        }
-        return classfileBuffer;
+        return isTargetClass(classLoader, className) ? transformClass() : null;
     }
 
     private boolean isTargetClass(ClassLoader loader, String className) {
         String targetClassName = targetClass.getName();
         String finalTargetClassName = targetClassName.replaceAll("\\.", "/");
         return className.equals(finalTargetClassName) && loader.equals(targetClass.getClassLoader());
+    }
+
+    private byte[] transformClass() {
+        Optional<CtClass> ctClassOptional = getCtClass();
+        if (ctClassOptional.isPresent()) {
+            CtClass cc = ctClassOptional.get();
+            ClassFile classFile = cc.getClassFile();
+            if (parsedArgs.isMethodSelected())
+                changeInvocationCountOfMethod(cc, classFile);
+            else
+                changeInvocationCountOfAllTestMethods(cc, classFile);
+            return getClassByteCode(cc);
+        }
+        return null;
     }
 
     private Optional<CtClass> getCtClass() {
@@ -81,11 +83,11 @@ public class TestAnnotationTransformer implements ClassFileTransformer {
         classFile.addAttribute(attribute);
     }
 
-    private static byte[] getClassByteCode(CtClass cc, byte[] classfileBuffer) {
+    private static byte[] getClassByteCode(CtClass cc) {
         try {
             return cc.toBytecode();
         } catch (IOException | CannotCompileException e) {
-            return classfileBuffer;
+            return null;
         }
     }
 }
