@@ -2,6 +2,7 @@ package com.latskap;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
+import java.util.Optional;
 
 public class AnnotationChangerJavaAgent {
 
@@ -13,19 +14,22 @@ public class AnnotationChangerJavaAgent {
     }
 
     private static void transform(ParsedArgs parsedArgs, Instrumentation instrumentation) throws UnmodifiableClassException {
-        Class<?> targetClass = getClassByName(parsedArgs.getTargetClass(), instrumentation);
-        instrumentation.addTransformer(new TestAnnotationTransformer(targetClass, parsedArgs), true);
-        instrumentation.retransformClasses(targetClass);
+        Optional<Class<?>> classOptional = getClassByName(parsedArgs.getTargetClass(), instrumentation);
+        if (classOptional.isPresent()) {
+            Class<?> targetClass = classOptional.get();
+            instrumentation.addTransformer(new TestAnnotationTransformer(targetClass, parsedArgs), true);
+            instrumentation.retransformClasses(targetClass);
+        }
     }
 
-    private static Class<?> getClassByName(String className, Instrumentation instrumentation) {
+    private static Optional<Class<?>> getClassByName(String className, Instrumentation instrumentation) {
         try {
-            return Class.forName(className);
+            return Optional.of(Class.forName(className));
         } catch (ClassNotFoundException e) {
             for (Class<?> cl : instrumentation.getAllLoadedClasses())
                 if (cl.getName().equals(className))
-                    return cl;
+                    return Optional.of(cl);
         }
-        throw new RuntimeException("Failed to find class [" + className + "].");
+        return Optional.empty();
     }
 }
