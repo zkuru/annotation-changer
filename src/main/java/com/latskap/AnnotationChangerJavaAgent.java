@@ -9,8 +9,7 @@ public class AnnotationChangerJavaAgent {
     public static void premain(String args, Instrumentation instrumentation) {
         try {
             transform(new ParsedArgs(args), instrumentation);
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) {}
     }
 
     private static void transform(ParsedArgs parsedArgs, Instrumentation instrumentation) throws UnmodifiableClassException {
