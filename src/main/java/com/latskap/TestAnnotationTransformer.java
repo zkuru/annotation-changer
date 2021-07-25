@@ -40,13 +40,13 @@ public class TestAnnotationTransformer implements ClassFileTransformer {
     private byte[] transformClass() {
         Optional<CtClass> ctClassOptional = getCtClass();
         if (ctClassOptional.isPresent()) {
-            CtClass cc = ctClassOptional.get();
-            ClassFile classFile = cc.getClassFile();
+            CtClass ctClass = ctClassOptional.get();
+            ClassFile classFile = ctClass.getClassFile();
             if (parsedArgs.isMethodSelected())
-                changeInvocationCountOfMethod(cc, classFile);
+                changeInvocationCountOfMethod(ctClass, classFile);
             else
-                changeInvocationCountOfAllTestMethods(cc, classFile);
-            return getClassByteCode(cc);
+                changeInvocationCountOfAllTestMethods(ctClass, classFile);
+            return getClassByteCode(ctClass);
         }
         return null;
     }
