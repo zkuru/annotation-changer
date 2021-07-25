@@ -15,7 +15,6 @@ import java.security.ProtectionDomain;
 import java.util.Optional;
 
 public class TestAnnotationTransformer implements ClassFileTransformer {
-    private static final String TEST_ANNOTATION = "org.testng.annotations.Test";
     private static final String INVOCATION_COUNT = "invocationCount";
 
     private final Class<?> targetClass;
@@ -76,7 +75,7 @@ public class TestAnnotationTransformer implements ClassFileTransformer {
         MethodInfo methodInfo = method.getMethodInfo();
         AnnotationsAttribute attribute = (AnnotationsAttribute) methodInfo.getAttribute(AnnotationsAttribute.visibleTag);
         ConstPool constPool = classFile.getConstPool();
-        Annotation annotation = new Annotation(TEST_ANNOTATION, constPool);
+        Annotation annotation = new Annotation(Test.class.getTypeName(), constPool);
         annotation.addMemberValue(INVOCATION_COUNT, new IntegerMemberValue(constPool, parsedArgs.getInvocationCount()));
         attribute.addAnnotation(annotation);
         classFile.addAttribute(attribute);
