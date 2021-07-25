@@ -51,22 +51,22 @@ public class TestAnnotationTransformer implements ClassFileTransformer {
     }
 
     private Optional<CtClass> getCtClass() {
-        ClassPool cp = ClassPool.getDefault();
+        ClassPool classPool = ClassPool.getDefault();
         try {
-            return Optional.of(cp.get(targetClass.getName()));
+            return Optional.of(classPool.get(targetClass.getName()));
         } catch (NotFoundException e) {
             return Optional.empty();
         }
     }
 
-    private void changeInvocationCountOfMethod(CtClass cc, ClassFile classFile) {
+    private void changeInvocationCountOfMethod(CtClass ctClass, ClassFile classFile) {
         try {
-            changeInvocationCountOfMethod(cc.getDeclaredMethod(parsedArgs.getMethod()), classFile);
+            changeInvocationCountOfMethod(ctClass.getDeclaredMethod(parsedArgs.getMethod()), classFile);
         } catch (NotFoundException ignored) {}
     }
 
-    private void changeInvocationCountOfAllTestMethods(CtClass cc, ClassFile classFile) {
-        for (CtMethod m : cc.getDeclaredMethods())
+    private void changeInvocationCountOfAllTestMethods(CtClass ctClass, ClassFile classFile) {
+        for (CtMethod m : ctClass.getDeclaredMethods())
             if (m.hasAnnotation(Test.class))
                 changeInvocationCountOfMethod(m, classFile);
     }
@@ -81,9 +81,9 @@ public class TestAnnotationTransformer implements ClassFileTransformer {
         classFile.addAttribute(attribute);
     }
 
-    private static byte[] getClassByteCode(CtClass cc) {
+    private static byte[] getClassByteCode(CtClass ctClass) {
         try {
-            return cc.toBytecode();
+            return ctClass.toBytecode();
         } catch (IOException | CannotCompileException e) {
             return null;
         }
