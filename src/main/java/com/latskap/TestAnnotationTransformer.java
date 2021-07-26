@@ -73,12 +73,21 @@ public class TestAnnotationTransformer implements ClassFileTransformer {
 
     private void changeInvocationCountOfMethod(CtMethod method, ClassFile classFile) {
         MethodInfo methodInfo = method.getMethodInfo();
-        AnnotationsAttribute attribute = (AnnotationsAttribute) methodInfo.getAttribute(AnnotationsAttribute.visibleTag);
+        AnnotationsAttribute annotationsAttribute = (AnnotationsAttribute) methodInfo.getAttribute(AnnotationsAttribute.visibleTag);
         ConstPool constPool = classFile.getConstPool();
-        Annotation annotation = new Annotation(Test.class.getTypeName(), constPool);
-        annotation.addMemberValue(INVOCATION_COUNT, new IntegerMemberValue(constPool, parsedArgs.getInvocationCount()));
-        attribute.addAnnotation(annotation);
-        classFile.addAttribute(attribute);
+        Annotation newAnnotation = new Annotation(Test.class.getTypeName(), constPool);
+        copyOriginAnnotationParameters(newAnnotation, annotationsAttribute);
+        addInvocationCount(newAnnotation, constPool);
+        annotationsAttribute.addAnnotation(newAnnotation);
+    }
+
+    private static void copyOriginAnnotationParameters(Annotation newAnnotation, AnnotationsAttribute annotationsAttribute) {
+        Annotation origin = annotationsAttribute.getAnnotation(Test.class.getTypeName());
+        for (Object memberName : origin.getMemberNames())
+            newAnnotation.addMemberValue((String) memberName, origin.getMemberValue((String) memberName));
+    }
+    private void addInvocationCount(Annotation newAnnotation, ConstPool constPool) {
+        newAnnotation.addMemberValue(INVOCATION_COUNT, new IntegerMemberValue(constPool, parsedArgs.getInvocationCount()));
     }
 
     private static byte[] getClassByteCode(CtClass ctClass) {
