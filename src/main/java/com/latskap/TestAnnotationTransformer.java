@@ -83,8 +83,9 @@ public class TestAnnotationTransformer implements ClassFileTransformer {
 
     private static void copyOriginAnnotationParameters(Annotation newAnnotation, AnnotationsAttribute annotationsAttribute) {
         Annotation origin = annotationsAttribute.getAnnotation(Test.class.getTypeName());
-        for (Object memberName : origin.getMemberNames())
-            newAnnotation.addMemberValue((String) memberName, origin.getMemberValue((String) memberName));
+        if (origin.getMemberNames() != null)
+            for (Object memberName : origin.getMemberNames())
+                newAnnotation.addMemberValue((String) memberName, origin.getMemberValue((String) memberName));
     }
     private void addInvocationCount(Annotation newAnnotation, ConstPool constPool) {
         newAnnotation.addMemberValue(INVOCATION_COUNT, new IntegerMemberValue(constPool, parsedArgs.getInvocationCount()));
